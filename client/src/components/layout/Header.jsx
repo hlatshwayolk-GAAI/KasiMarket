@@ -66,7 +66,7 @@ export default function Header() {
     <header className="header">
       <div className="header-inner">
         <Link to="/" className="header-logo">
-          <div className="logo-icon">KM</div>
+          <img src="/images/logo.png" alt="Kasi Market" className="logo-img" />
           <span>Kasi<span className="highlight">Market</span></span>
         </Link>
 

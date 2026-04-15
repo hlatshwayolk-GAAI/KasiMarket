@@ -38,6 +38,7 @@ export default function Home() {
           className="hero-bg-image"
         />
         <div className="hero-content slide-up">
+          <img src="/images/logo.png" alt="Kasi Market" className="hero-logo" />
           <div className="hero-badge">
             ✦ Your Community Marketplace ✦
           </div>

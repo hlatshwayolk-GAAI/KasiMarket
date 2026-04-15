@@ -172,12 +172,10 @@ input, textarea, select, button {
   color: var(--text-primary);
   white-space: nowrap;
 }
-.header-logo .logo-icon {
-  width: 36px; height: 36px;
-  background: var(--gradient-primary);
-  border-radius: var(--radius-md);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; color: white; font-weight: 900;
+.header-logo .logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 .header-logo span.highlight { color: var(--primary); }
 
@@ -574,6 +572,17 @@ input, textarea, select, button {
   max-width: var(--max-w); margin: 0 auto;
   padding: var(--space-3xl) var(--space-lg);
   text-align: center;
+}
+.hero-logo {
+  height: 120px;
+  width: auto;
+  margin: 0 auto var(--space-xl);
+  filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
+  animation: logoPulse 4s infinite ease-in-out;
+}
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 35px var(--primary-glow)); }
 }
 .hero h1 {
   font-family: var(--font-display);
