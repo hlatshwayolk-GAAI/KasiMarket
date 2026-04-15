@@ -1,0 +1,16 @@
+{
+  "name": "kasi-market",
+  "version": "1.0.0",
+  "description": "Kasi Market — Find local services. Find local work.",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k \"npm run server\" \"npm run client\"",
+    "server": "cd server && node server.js",
+    "client": "cd client && npm run dev",
+    "seed": "cd server && node db/seed.js",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

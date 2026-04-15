@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Database
+server/kasi_market.db
+server/kasi_market.db-shm
+server/kasi_market.db-wal
+
+# Build
+client/dist/
+
+# OS/System
+.DS_Store
+Thumbs.db
+
+# User Uploads (optional - keep empty directories if preferred)
+# uploads/*
+# !uploads/.gitkeep
+
+# Env
+.env
+.env.local
+.env.production
