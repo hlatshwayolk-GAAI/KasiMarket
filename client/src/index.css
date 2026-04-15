@@ -176,6 +176,10 @@ input, textarea, select, button {
   height: 40px;
   width: auto;
   object-fit: contain;
+  background: var(--primary-glow);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.1);
 }
 .header-logo span.highlight { color: var(--primary); }
 
@@ -577,6 +581,11 @@ input, textarea, select, button {
   height: 120px;
   width: auto;
   margin: 0 auto var(--space-xl);
+  background: rgba(249, 115, 22, 0.12);
+  padding: var(--space-md);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(249, 115, 22, 0.2);
   filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
   animation: logoPulse 4s infinite ease-in-out;
 }
