@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ArrowRight, MapPin, Star, Clock, Briefcase, Users, TrendingUp, Shield } from 'lucide-react';
 import { api } from '../utils/api';
@@ -16,6 +16,27 @@ export default function Home() {
     api.getLatestRequests().then(setLatestRequests).catch(() => {});
   }, []);
 
+  // Intersection Observer for scroll-reveal animations
+  const observerRef = useRef(null);
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observerRef.current?.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    const revealElements = document.querySelectorAll('.reveal-on-scroll');
+    revealElements.forEach((el) => observerRef.current?.observe(el));
+
+    return () => observerRef.current?.disconnect();
+  }, [categories, featured, latestRequests]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) navigate(`/browse?search=${encodeURIComponent(searchQuery)}`);
@@ -29,193 +50,66 @@ export default function Home() {
   };
 
   return (
-    <div className="fade-in">
-      {/* Hero */}
-      <section className="hero">
+    <div>
+      {/* Premium Hero */}
+      <section className="hero" style={{ minHeight: '60vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img
           src="/images/hero-bg.png"
-          alt="South African community service workers"
+          alt="Luxury lifestyle"
           className="hero-bg-image"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 0, opacity: 0.8, filter: 'brightness(0.6)' }}
         />
-        <div className="hero-content slide-up">
-          <img src="/images/logo.png" alt="Kasi Market" className="hero-logo" />
-          <div className="hero-badge">
-            ✦ Your Community Marketplace ✦
+        <div className="hero-content" style={{ position: 'relative', zIndex: 2, textAlign: 'center', color: '#fff', padding: 'var(--space-2xl)' }}>
+          <div className="hero-subtitle slide-up stagger-1" style={{ fontSize: '0.8rem', letterSpacing: '3px', fontWeight: 600, color: 'var(--primary-light)', marginBottom: 'var(--space-sm)', textTransform: 'uppercase' }}>
+            Elevate Your Lifestyle. Exclusive Community Services.
           </div>
-          <div className="hero-subtitle">Connecting Communities Through</div>
-          <h1>
-            Local Spane.<br />
-            <span className="gradient-text">Local Work.</span>
+          <h1 className="slide-up stagger-2" style={{ fontFamily: 'var(--font-heading)', fontSize: '3.5rem', fontWeight: 400, color: 'var(--primary)', letterSpacing: '2px', textShadow: '0 2px 10px rgba(0,0,0,0.5)', marginBottom: 'var(--space-xl)' }}>
+            LOCAL LUXURY. LOCAL TRUST.
           </h1>
-          <p>From welding to gardening, brick laying to cleaning — trusted service providers right in your kasi.</p>
-          <form className="hero-search" onSubmit={handleSearch}>
-            <Search size={20} className="search-icon-hero" />
-            <input
-              type="text" placeholder="What service do you need?"
-              value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button type="submit" className="btn btn-primary search-btn">Search</button>
-          </form>
-          <div className="hero-ctas">
-            <Link to="/browse" className="btn btn-primary btn-lg">
-              <Search size={18} /> Find a Service
-            </Link>
-            <Link to="/create-listing" className="btn btn-secondary btn-lg">
-              <Briefcase size={18} /> Post a Service
-            </Link>
-            <Link to="/create-request" className="btn btn-outline btn-lg">
-              <Users size={18} /> Post a Request
+          <div className="slide-up stagger-3">
+            <Link to="/browse" className="btn btn-primary" style={{ borderRadius: '30px', padding: '12px 32px', fontSize: '0.9rem', letterSpacing: '1px', fontWeight: 600, background: 'var(--primary)', color: 'var(--secondary)' }}>
+              VIEW EXCLUSIVE SERVICES
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Category pills */}
-      <div className="category-pills">
-        {categories.map(cat => (
-          <Link key={cat.id} to={`/browse/${cat.slug}`} className="category-pill">
-            <span className="cat-icon">{cat.icon}</span>
-            {cat.name}
-          </Link>
-        ))}
-      </div>
-
-      {/* Featured Services */}
-      {featured.length > 0 && (
-        <section className="section">
-          <div className="section-header">
-            <h2 className="section-title">Featured <span className="accent">Services</span></h2>
-            <Link to="/browse" className="btn btn-ghost">View All <ArrowRight size={16} /></Link>
-          </div>
-          <div className="container">
-            <div className="listing-grid">
-              {featured.slice(0, 4).map(listing => (
-                <Link key={listing.id} to={`/listing/${listing.id}`} className="listing-card card" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className="card-image-container">
-                    {listing.images?.length > 0 ? (
-                      <img src={listing.images[0]} alt={listing.title} />
-                    ) : (
-                      <div className="card-image-placeholder">
-                        {categories.find(c => c.id === listing.category_id)?.icon || '🔧'}
-                      </div>
-                    )}
-                    <span className="price-badge">{formatPrice(listing)}</span>
-                  </div>
-                  <div className="card-body">
-                    <div className="card-category">{listing.category_name}</div>
-                    <h3 className="card-title">{listing.title}</h3>
-                    <div className="card-location"><MapPin size={14} /> {listing.location || 'Local'}</div>
-                    <div className="card-provider">
-                      <div className="provider-avatar">
-                        {listing.provider_avatar ? <img src={listing.provider_avatar} alt="" /> : listing.provider_name?.[0]}
-                      </div>
-                      <span className="provider-name">{listing.business_name || listing.provider_name}</span>
-                      {listing.provider_rating > 0 && (
-                        <span className="provider-rating"><Star size={14} /> {listing.provider_rating}</span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Latest Requests */}
-      {latestRequests.length > 0 && (
-        <section className="section">
-          <div className="section-header">
-            <h2 className="section-title">Latest Job <span className="accent">Requests</span></h2>
-            <Link to="/browse?tab=requests" className="btn btn-ghost">View All <ArrowRight size={16} /></Link>
-          </div>
-          <div className="container">
-            <div className="request-grid">
-              {latestRequests.slice(0, 4).map(req => (
-                <Link key={req.id} to={`/request/${req.id}`} className="request-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className="request-header">
-                    <h3 className="request-title">{req.title}</h3>
-                    <span className={`urgency-badge urgency-${req.urgency}`}>{req.urgency}</span>
-                  </div>
-                  <p className="request-desc">{req.description}</p>
-                  <div className="request-meta">
-                    {(req.budget_min || req.budget_max) && (
-                      <span className="request-budget">
-                        💰 R{req.budget_min?.toLocaleString() || '0'} - R{req.budget_max?.toLocaleString() || '∞'}
-                      </span>
-                    )}
-                    <span><MapPin size={14} /> {req.location || 'Local'}</span>
-                    {req.category_name && <span>{req.category_name}</span>}
-                    <span className="quote-count">💬 {req.quote_count || 0} quotes</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* How it works */}
-      <section className="section">
-        <div className="section-header">
-          <h2 className="section-title">How It <span className="accent">Works</span></h2>
-        </div>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--space-xl)' }}>
-            {[
-              { icon: <Search size={28} />, title: 'Search & Browse', desc: 'Find the service you need by browsing categories or searching directly.' },
-              { icon: <Users size={28} />, title: 'Compare & Choose', desc: 'Compare providers by ratings, prices, and reviews. Or post a job and let providers come to you.' },
-              { icon: <Shield size={28} />, title: 'Book & Pay Safely', desc: 'Book your provider and pay securely through PayFast. Track your booking status.' },
-              { icon: <Star size={28} />, title: 'Rate & Review', desc: 'After the job is done, leave a review to help the community find great service.' },
-            ].map((step, i) => (
-              <div key={i} className="card" style={{ textAlign: 'center', padding: 'var(--space-xl)', border: '1px solid var(--border)' }}>
-                <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-md)', background: 'var(--primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--space-md)', color: 'var(--primary)' }}>
-                  {step.icon}
-                </div>
-                <h3 style={{ fontSize: '1.05rem', marginBottom: 'var(--space-sm)' }}>{step.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="section" style={{ background: 'var(--gradient-hero)' }}>
+      {/* Premium Service Categories */}
+      <section className="section" style={{ background: 'var(--bg-root)' }}>
         <div className="container" style={{ textAlign: 'center' }}>
-          <h2 className="section-title" style={{ marginBottom: 'var(--space-xl)' }}>Trusted by the <span className="accent">Community</span></h2>
-          <div className="stats-grid" style={{ maxWidth: 800, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '2rem', color: 'var(--secondary)', marginBottom: 'var(--space-2xl)' }}>Premium Service Categories</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-md)' }}>
             {[
-              { value: '500+', label: 'Service Providers', icon: <Users size={24} /> },
-              { value: '2,000+', label: 'Happy Customers', icon: <TrendingUp size={24} /> },
-              { value: '5,000+', label: 'Jobs Completed', icon: <Briefcase size={24} /> },
-              { value: '4.8', label: 'Average Rating', icon: <Star size={24} /> },
-            ].map((stat, i) => (
-              <div key={i} className="stat-card" style={{ textAlign: 'center' }}>
-                <div className={`stat-icon ${['orange', 'cyan', 'purple', 'green'][i]}`} style={{ margin: '0 auto var(--space-sm)' }}>
-                  {stat.icon}
-                </div>
-                <div className="stat-value">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
+              { id: '1', name: 'Home Cleaning', icon: '🧹', desc: 'Elegant interior with a maid cleaning\nbespoke cleaning, deep clean', title: 'High-end, pristine luxury interior\nwith marble surfaces and fresh\nflowers.' },
+              { id: '2', name: 'Outdoor & Garden', icon: '🌳', desc: 'Pristine manicured luxury garden\nand landscaping\nlandscaping, garden care', title: 'Lush, manicured estate garden\nwith a gazebo.' },
+              { id: '3', name: 'Pool Services', icon: '🏊‍♂️', desc: 'Sparkling infinity pool at a villa\nmaintenance, cleaning', title: 'Sparkling infinity pool\noverlooking a scenic vista.' },
+              { id: '4', name: 'Childcare & Nanny', icon: '👶', desc: 'Professional nanny with a child in a\nsophisticated nursery\nprivate care, nannies', title: 'Elegant nursery with designer\nfurniture.' },
+              { id: '5', name: 'Fencing', icon: '🚧', desc: 'High-quality architectural\nfencing installation\ncustom fencing, gates', title: 'Wrought iron and wood luxury\nfence around a property.' },
+              { id: '6', name: 'Welding', icon: '🔥', desc: 'Craftsman doing precision\nwelding on luxury metalwork\ncustom fabrication, repair', title: 'Close-up of precision welding\non a luxury metal structure with\nsparks.' },
+              { id: '7', name: 'Roofing', icon: '🏠', desc: 'Beautiful slate roof on a\nmodern mansion\nrepairs, installation', title: 'Aerial view of a high-end slate\nand copper roof on a grand\nmanor.' },
+              { id: '8', name: 'Moving Services', icon: '🚚', desc: 'Professional movers handling\nhigh-end furniture\nwhite-glove relocation', title: 'Premium branded moving truck\nwith professional movers.' },
+            ].map((cat, i) => (
+              <div key={i} style={{ 
+                background: 'linear-gradient(180deg, rgba(40,40,40,1) 0%, rgba(20,20,20,1) 100%)',
+                border: '1px solid var(--primary)', 
+                borderRadius: '8px', 
+                padding: 'var(--space-xl) var(--space-md)', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                minHeight: '220px'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-sm)' }}>{cat.icon}</div>
+                <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 500, marginBottom: 'var(--space-sm)' }}>{cat.name}</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', whiteSpace: 'pre-line', lineHeight: '1.4' }}>{cat.title}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="section" style={{ textAlign: 'center' }}>
-        <div className="container">
-          <h2 style={{ fontSize: '2rem', marginBottom: 'var(--space-md)' }}>Ready to get started?</h2>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: 500, margin: '0 auto var(--space-xl)', fontSize: '1.05rem' }}>
-            Whether you're looking for work or need a service done, Kasi Market connects you with your community.
-          </p>
-          <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" className="btn btn-primary btn-lg">Join Kasi Market</Link>
-            <Link to="/browse" className="btn btn-secondary btn-lg">Browse Services</Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

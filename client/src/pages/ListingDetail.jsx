@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MapPin, Star, Clock, Eye, Shield, MessageSquare, Calendar, ArrowLeft, DollarSign, Heart } from 'lucide-react';
 import { api } from '../utils/api';
@@ -12,11 +12,22 @@ export default function ListingDetail() {
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+  const [imgTransitioning, setImgTransitioning] = useState(false);
 
   useEffect(() => {
     api.getListing(id).then(data => { setListing(data); setLoading(false); }).catch(() => setLoading(false));
     if (user) api.checkFavorite(id).then(d => setIsSaved(d.saved)).catch(() => {});
   }, [id, user]);
+
+  // Handle image change with CSS transition
+  const changeActiveImg = (idx) => {
+    if (idx === activeImg || imgTransitioning) return;
+    setImgTransitioning(true);
+    setTimeout(() => {
+      setActiveImg(idx);
+      setTimeout(() => setImgTransitioning(false), 50);
+    }, 200);
+  };
 
   if (loading) return <div className="loading-spinner"><div className="spinner" /></div>;
   if (!listing) return <div className="empty-state"><h3>Listing not found</h3><Link to="/browse" className="btn btn-primary">Browse Services</Link></div>;
@@ -47,8 +58,8 @@ export default function ListingDetail() {
   };
 
   return (
-    <div className="detail-page fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
+    <div className="detail-page page-enter">
+      <div className="detail-header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
         <button onClick={() => navigate(-1)} className="btn btn-ghost"><ArrowLeft size={16} /> Back</button>
         {user && (
           <button className="btn btn-ghost" onClick={async () => {
@@ -62,26 +73,30 @@ export default function ListingDetail() {
         )}
       </div>
       <div className="detail-grid">
-        <div>
+        <div className="detail-main">
           {/* Images */}
           <div className="detail-images">
             {listing.images?.length > 0 ? (
-              <img src={listing.images[activeImg]} alt={listing.title} />
+              <img
+                src={listing.images[activeImg]}
+                alt={listing.title}
+                className={imgTransitioning ? 'img-fade-out' : 'img-fade-in'}
+              />
             ) : (
               <div className="no-image">🔧</div>
             )}
           </div>
           {listing.images?.length > 1 && (
-            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <div className="detail-thumbnails">
               {listing.images.map((img, i) => (
-                <img key={i} src={img} alt="" onClick={() => setActiveImg(i)}
-                  style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 8, cursor: 'pointer', border: i === activeImg ? '2px solid var(--primary)' : '2px solid transparent', opacity: i === activeImg ? 1 : 0.6 }} />
+                <img key={i} src={img} alt="" onClick={() => changeActiveImg(i)}
+                  className={`detail-thumb ${i === activeImg ? 'active' : ''}`} />
               ))}
             </div>
           )}
 
           {/* Info */}
-          <div className="detail-info">
+          <div className="detail-info stagger-children">
             <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
               {listing.category_name && <Link to={`/browse/${listing.category_slug}`} style={{ fontSize: '0.85rem', color: 'var(--secondary)', fontWeight: 500 }}>{listing.category_name}</Link>}
               {listing.subcategory_name && <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>› {listing.subcategory_name}</span>}
@@ -134,7 +149,7 @@ export default function ListingDetail() {
         </div>
 
         {/* Provider Sidebar */}
-        <div>
+        <div className="detail-sidebar">
           <div className="provider-card">
             <div className="price-display">
               <div className="price-label">{priceLabel}</div>
@@ -159,7 +174,7 @@ export default function ListingDetail() {
               <div className="provider-stat"><div className="stat-value">{listing.total_jobs || 0}</div><div className="stat-label">Jobs Done</div></div>
               <div className="provider-stat"><div className="stat-value">{listing.years_experience || 0}</div><div className="stat-label">Years Exp.</div></div>
             </div>
-            <button className="btn btn-primary btn-block btn-lg" onClick={handleBookNow} style={{ marginBottom: 8 }}>
+            <button className="btn btn-primary btn-block btn-lg btn-book" onClick={handleBookNow} style={{ marginBottom: 8 }}>
               <DollarSign size={18} /> Book Now {listing.price_amount ? `— R${listing.price_amount.toLocaleString()}` : ''}
             </button>
             <button className="btn btn-secondary btn-block" onClick={handleContact} style={{ marginBottom: 8 }}>

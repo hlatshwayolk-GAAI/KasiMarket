@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, X, ArrowLeft } from 'lucide-react';
 import { api } from '../utils/api';
@@ -11,7 +11,7 @@ export default function CreateListing() {
   const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  
   useEffect(() => { api.getCategories().then(setCategories).catch(() => {}); }, []);
 
   const handleImageChange = (e) => {
@@ -41,20 +41,24 @@ export default function CreateListing() {
   };
 
   return (
-    <div className="container fade-in" style={{ maxWidth: 700, padding: 'var(--space-xl) var(--space-lg)' }}>
+    <div className="container slide-up" style={{ maxWidth: 700, padding: 'var(--space-xl) var(--space-lg)' }}>
       <button onClick={() => navigate(-1)} className="btn btn-ghost" style={{ marginBottom: 'var(--space-md)' }}><ArrowLeft size={16} /> Back</button>
       <h1 style={{ fontSize: '1.6rem', marginBottom: 4 }}>Post a Service</h1>
       <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-xl)' }}>Create a listing to showcase your service to customers</p>
 
-      {error && <div className="toast error" style={{ marginBottom: 'var(--space-md)', animation: 'none', minWidth: 'auto' }}>{error}</div>}
+      {error && (
+        <div className="toast error" style={{ marginBottom: 'var(--space-md)', animation: 'none', minWidth: 'auto' }}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="form-group stagger-1">
           <label className="form-label">Service Title *</label>
           <input type="text" className="form-input" placeholder="e.g. Professional Garden Maintenance" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required />
         </div>
 
-        <div className="form-row">
+        <div className="form-row stagger-2">
           <div className="form-group">
             <label className="form-label">Category *</label>
             <select className="form-select" value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: e.target.value, subcategory_id: '' }))}>
@@ -71,12 +75,12 @@ export default function CreateListing() {
           </div>
         </div>
 
-        <div className="form-group">
+        <div className="form-group stagger-3">
           <label className="form-label">Description *</label>
           <textarea className="form-textarea" placeholder="Describe your service in detail..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} required style={{ minHeight: 150 }} />
         </div>
 
-        <div className="form-row">
+        <div className="form-row stagger-4">
           <div className="form-group">
             <label className="form-label">Price Type</label>
             <select className="form-select" value={form.price_type} onChange={e => setForm(f => ({ ...f, price_type: e.target.value }))}>
@@ -92,7 +96,7 @@ export default function CreateListing() {
           </div>
         </div>
 
-        <div className="form-row">
+        <div className="form-row stagger-5">
           <div className="form-group">
             <label className="form-label">Location</label>
             <input type="text" className="form-input" placeholder="e.g. Soweto" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
@@ -103,17 +107,17 @@ export default function CreateListing() {
           </div>
         </div>
 
-        <div className="form-group">
+        <div className="form-group stagger-6">
           <label className="form-label">Availability</label>
           <input type="text" className="form-input" placeholder="e.g. Mon-Sat, 7am-5pm" value={form.availability} onChange={e => setForm(f => ({ ...f, availability: e.target.value }))} />
         </div>
 
-        <div className="form-group">
+        <div className="form-group stagger-7">
           <label className="form-label">Tags (comma separated)</label>
           <input type="text" className="form-input" placeholder="e.g. gardening, grass cutting, landscaping" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} />
         </div>
 
-        <div className="form-group">
+        <div className="form-group stagger-8">
           <label className="form-label">Images (up to 6)</label>
           <label className="image-upload-area">
             <Upload size={32} style={{ marginBottom: 8 }} />
@@ -133,7 +137,7 @@ export default function CreateListing() {
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
+        <button type="submit" className="btn btn-primary btn-block btn-lg stagger-9" disabled={loading}>
           {loading ? 'Publishing...' : 'Publish Service Listing'}
         </button>
       </form>

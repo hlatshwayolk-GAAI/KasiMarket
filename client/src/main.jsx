@@ -2,6 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import '@fontsource/cinzel';
+import '@fontsource/inter';
+import '@fontsource/playfair-display';
 import App from './App';
 import './index.css';
 

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Bell, MessageSquare, Plus, LayoutDashboard, LogOut, User, Settings, Shield, ChevronDown, Menu, CalendarDays, DollarSign, BarChart3, Heart } from 'lucide-react';
+import { Search, Bell, MessageSquare, Plus, LayoutDashboard, LogOut, User, Settings, Shield, ChevronDown, Menu, CalendarDays, DollarSign, BarChart3, Heart, Compass, PenTool, Mail, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../utils/api';
 
@@ -63,18 +63,20 @@ export default function Header() {
   const initials = user?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   return (
-    <header className="header">
+    <header className="header fade-in">
       <div className="header-inner">
-        <Link to="/" className="header-logo">
-          <img src="/images/logo.png" alt="Kasi Market" className="logo-img" />
-          <span>Kasi<span className="highlight">Market</span></span>
+        <Link to="/" className="header-logo" style={{ textDecoration: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'var(--primary-glow)', borderRadius: 8, border: '1px solid var(--primary-light)', marginRight: 8, color: 'var(--primary-dark)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M9 22V12h6v10"></path></svg>
+          </div>
+          <span style={{ color: 'var(--secondary)' }}>KasiMarket <span style={{ color: 'var(--primary)', fontWeight: 400, fontStyle: 'italic', fontFamily: 'var(--font-heading)' }}>Premium</span></span>
         </Link>
 
         <form className="header-search" onSubmit={handleSearch}>
           <Search size={18} className="search-icon" />
           <input
             type="text"
-            placeholder="Search services, providers, requests..."
+            placeholder="Search elite services, providers, requests..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -84,16 +86,19 @@ export default function Header() {
           {user ? (
             <>
               <Link to="/browse" className="header-nav-link">
-                <Search size={18} /><span>Browse</span>
+                <Compass size={18} /><span>Explore</span>
               </Link>
               <Link to="/create-listing" className="header-nav-link">
-                <Plus size={18} /><span>Post Service</span>
+                <PenTool size={18} /><span>Offer Services</span>
               </Link>
               <Link to="/messages" className="header-nav-link">
-                <MessageSquare size={18} /><span>Messages</span>
+                <Mail size={18} /><span>Messages</span>
                 {msgCount > 0 && <span className="badge">{msgCount}</span>}
               </Link>
-              <div ref={notifRef} style={{ position: 'relative' }}>
+              <Link to="#" className="header-nav-link">
+                <Sparkles size={18} /><span>Concierge</span>
+              </Link>
+              <div ref={notifRef} style={{ position: 'relative', display: 'none' }}>
                 <button className="header-nav-link" onClick={handleNotifClick} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                   <Bell size={18} />
                   {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
@@ -127,10 +132,7 @@ export default function Header() {
               </div>
               <div ref={menuRef} style={{ position: 'relative' }}>
                 <div className="header-user" onClick={() => setShowUserMenu(!showUserMenu)}>
-                  <div className="header-user-avatar">
-                    {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
-                  </div>
-                  <span className="header-user-name">{user.full_name?.split(' ')[0]}</span>
+                  <span className="header-user-name">KM <span style={{color: 'var(--primary)', fontWeight: 'normal'}}>Kasi Premium</span></span>
                   <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
                 </div>
                 {showUserMenu && (
@@ -178,10 +180,10 @@ export default function Header() {
           ) : (
             <>
               <Link to="/browse" className="header-nav-link">
-                <Search size={18} /><span>Browse</span>
+                <Compass size={18} /><span>Explore</span>
               </Link>
-              <Link to="/login" className="btn btn-ghost btn-sm">Sign In</Link>
-              <Link to="/register" className="btn btn-primary btn-sm">Get Started</Link>
+              <Link to="/login" className="btn btn-ghost btn-sm" style={{ color: 'var(--secondary)' }}>Sign In</Link>
+              <Link to="/register" className="btn btn-primary btn-sm" style={{ borderRadius: '20px', padding: '8px 20px' }}>Access Premium</Link>
             </>
           )}
         </nav>
